@@ -68,43 +68,49 @@ keyless and works now (29 distinct sources currently feed the pipeline).
 
 ## Syndication — add the feed to another website
 
-The server exposes standard feeds so any site/reader can pull the stories:
+The server exposes standard feeds and a drop-in widget so any site can show the stories:
 
 | Endpoint | Format | Notes |
 |----------|--------|-------|
+| `/embed.js` | Widget | **Two-line drop-in insert** (renders itself). |
 | `/rss.xml` | RSS 2.0 | Newest 50 stories. `application/rss+xml`. |
-| `/feed.json` | JSON Feed 1.1 | Same data, for custom JS embeds. |
+| `/feed.json` | JSON Feed 1.1 | Same data, for custom code. |
+| `/demo` | HTML | Live example of the widget on a plain page. |
 
-Both honor the site filters: `/rss.xml?tag=research`, `/feed.json?entity=OpenAI`.
-The feed pages are also auto-discoverable (`<link rel="alternate">` in `<head>`).
+All honor the site filters: `/rss.xml?tag=research`, `/feed.json?entity=OpenAI`,
+or `data-tag="research"` on the widget. Feed pages are auto-discoverable
+(`<link rel="alternate">` in `<head>`).
 
 **Deploy first.** `localhost` isn't reachable by your website — host the server
-(Render/Railway/Fly/VPS) and set `PUBLIC_URL=https://news.yoursite.com` so feed
-links are absolute. Keep it fresh by running `npm run pipeline` on a cron
-(every ~30 min); the server serves whatever's in `data/store.json`.
+(Render/Railway/Fly/VPS) and set `PUBLIC_URL=https://news.yoursite.com` so links
+are absolute. Keep it fresh by running `npm run pipeline` on a cron (every ~30
+min); the server serves whatever's in `data/store.json`.
 
-**Ways to embed on your site:**
+### The insert (recommended)
 
-1. **RSS widget** (easiest) — point a WordPress RSS block, Squarespace/Webflow
-   RSS element, or RSS.app/Elfsight widget at `https://news.yoursite.com/rss.xml`.
+Paste these two lines wherever you want the feed. That's it:
 
-2. **Custom JS** — fetch the JSON Feed and render it yourself:
-   ```html
-   <div id="ai-news"></div>
-   <script>
-   fetch("https://news.yoursite.com/feed.json")
-     .then(r => r.json())
-     .then(f => {
-       document.getElementById("ai-news").innerHTML = f.items.slice(0, 10)
-         .map(i => `<a href="${i.url}">${i.title}</a>`).join("<br>");
-     });
-   </script>
-   ```
+```html
+<div id="bbm-feed"></div>
+<script src="https://news.yoursite.com/embed.js" data-limit="8" data-title="AI News"></script>
+```
 
-3. **iframe** — drop the whole feed in: `<iframe src="https://news.yoursite.com/" ...>`.
+- `data-limit` — how many headlines (default 8)
+- `data-tag` — filter to one topic, e.g. `data-tag="research"`
+- `data-title` — heading text (default "AI News")
 
-4. **Static file** — no server on your host? `curl https://.../rss.xml > rss.xml`
-   on a cron and serve the file from any static host/CDN.
+The widget injects its own scoped CSS (won't clash with your site), links each
+headline to the story, and adds "Full feed" / "RSS" links. See it live at `/demo`.
+
+### Other ways to embed
+
+- **RSS widget** — point a WordPress RSS block, Squarespace/Webflow RSS element,
+  or RSS.app/Elfsight at `https://news.yoursite.com/rss.xml`.
+- **Custom JS** — `fetch("https://news.yoursite.com/feed.json")` and render the
+  `items` array yourself.
+- **iframe** — drop the whole styled feed in: `<iframe src="https://news.yoursite.com/">`.
+- **Static file** — no server on your host? `curl https://.../rss.xml > rss.xml`
+  on a cron and serve it from any static host/CDN.
 
 ## Source adapters
 
