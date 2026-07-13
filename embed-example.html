@@ -1,0 +1,27 @@
+<!doctype html>
+<!-- Example: how to drop the AI news feed into any website.
+     Copy the <div> + <script> lines into your page. Point src at your deployed
+     feed host. Optional: data-limit, data-tag, data-title. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Feed insert — example</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; color: #222; }
+    h1 { font-size: 22px; } .demo { border: 1px solid #eee; border-radius: 10px; padding: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Some other website</h1>
+  <p>Everything below the line is the feed, inserted with two lines of HTML.</p>
+  <hr />
+
+  <div class="demo">
+    <!-- ↓↓↓ THE INSERT — copy these two lines into your site ↓↓↓ -->
+    <div id="bbm-feed"></div>
+    <script src="http://localhost:4400/embed.js" data-limit="8" data-title="AI News"></script>
+    <!-- ↑↑↑ point src at your deployed host; add data-tag="research" to filter ↑↑↑ -->
+  </div>
+</body>
+</html>

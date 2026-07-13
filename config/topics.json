@@ -1,0 +1,83 @@
+{
+  "$comment": "Sources reconstructed to mirror HuggingNews. NOTE: HuggingNews does NOT publish its exact list of followed accounts — it only states it follows 'X accounts, labs, companies, projects, reporters, and researchers' and publishes its topic taxonomy (Models, Research, Open Source, Chips, Infrastructure, Agents, Funding, Policy, Security, Industry). The `ai` topic below is that taxonomy + the real, validated feed universe that matches their described scope. `x` sources are STAGED: they no-op until you set X_BEARER_TOKEN (HuggingNews's primary source is X, which is a paid API). All `rss`/`github`/`hfhub` sources are keyless and work now. To add a topic, append an object — no code changes.",
+  "topics": [
+    {
+      "id": "ai",
+      "label": "AI",
+      "sources": [
+        { "$group": "Labs & companies (announcements, blogs)" },
+        { "type": "rss", "url": "https://openai.com/news/rss.xml" },
+        { "type": "rss", "url": "https://deepmind.google/blog/rss.xml" },
+        { "type": "rss", "url": "https://research.google/blog/rss/" },
+        { "type": "rss", "url": "https://huggingface.co/blog/feed.xml" },
+        { "type": "rss", "url": "https://www.microsoft.com/en-us/research/feed/" },
+        { "type": "rss", "url": "https://www.cohere.com/blog/rss.xml" },
+        { "type": "rss", "url": "https://stability.ai/news?format=rss" },
+        { "type": "rss", "url": "https://bair.berkeley.edu/blog/feed.xml" },
+
+        { "$group": "Chips & infrastructure" },
+        { "type": "rss", "url": "https://blogs.nvidia.com/feed/" },
+        { "type": "rss", "url": "https://www.semianalysis.com/feed" },
+
+        { "$group": "Reporters & industry press (reporting, commentary)" },
+        { "type": "rss", "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml" },
+        { "type": "rss", "url": "https://arstechnica.com/ai/feed/" },
+        { "type": "rss", "url": "https://venturebeat.com/category/ai/feed/" },
+        { "type": "rss", "url": "https://www.technologyreview.com/feed/" },
+        { "type": "rss", "url": "https://www.wired.com/feed/tag/ai/latest/rss" },
+        { "type": "rss", "url": "https://www.theregister.com/headlines.atom" },
+        { "type": "rss", "url": "https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss" },
+
+        { "$group": "Researchers & independent commentary" },
+        { "type": "rss", "url": "https://simonwillison.net/atom/everything/" },
+        { "type": "rss", "url": "https://jack-clark.net/feed/" },
+
+        { "$group": "Research papers" },
+        { "type": "rss", "url": "https://rss.arxiv.org/rss/cs.AI" },
+        { "type": "rss", "url": "https://rss.arxiv.org/rss/cs.CL" },
+        { "type": "rss", "url": "https://rss.arxiv.org/rss/cs.LG" },
+
+        { "$group": "Open source & developer tools (release notes)" },
+        { "type": "github", "repo": "huggingface/transformers" },
+        { "type": "github", "repo": "vllm-project/vllm" },
+        { "type": "github", "repo": "ggml-org/llama.cpp" },
+        { "type": "github", "repo": "ollama/ollama" },
+        { "type": "github", "repo": "langchain-ai/langchain" },
+        { "type": "github", "repo": "pytorch/pytorch" },
+        { "type": "github", "repo": "microsoft/vscode" },
+
+        { "$group": "X accounts — STAGED (activate with X_BEARER_TOKEN)" },
+        { "type": "x", "handle": "OpenAI" },
+        { "type": "x", "handle": "AnthropicAI" },
+        { "type": "x", "handle": "claudeai" },
+        { "type": "x", "handle": "GoogleDeepMind" },
+        { "type": "x", "handle": "huggingface" },
+        { "type": "x", "handle": "AIatMeta" },
+        { "type": "x", "handle": "MistralAI" },
+        { "type": "x", "handle": "cohere" },
+        { "type": "x", "handle": "nvidia" },
+        { "type": "x", "handle": "sama" },
+        { "type": "x", "handle": "karpathy" },
+        { "type": "x", "handle": "ylecun" },
+        { "type": "x", "handle": "bcherny" },
+        { "type": "x", "handle": "cursor_ai" },
+        { "type": "x", "handle": "github" },
+        { "type": "x", "handle": "swyx" }
+      ],
+      "tags": [
+        "models", "research", "open-source", "chips", "infrastructure",
+        "agents", "funding", "policy", "security", "industry",
+        "releases", "products"
+      ]
+    },
+    {
+      "id": "legal-ai",
+      "label": "Legal AI",
+      "sources": [
+        { "type": "rss", "url": "https://www.lawnext.com/feed" },
+        { "type": "rss", "url": "https://abovethelaw.com/feed/" }
+      ],
+      "tags": ["legaltech", "regulation", "court-ruling", "funding", "access-to-justice"]
+    }
+  ]
+}
