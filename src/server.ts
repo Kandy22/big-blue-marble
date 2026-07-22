@@ -40,7 +40,7 @@ function tally(stories: Story[], pick: (s: Story) => string[]): [string, number]
 const DARK = `
   --bg:#0b1220; --panel:#111a2b; --ink:#f2f6ff; --fg:#c7d3e6;
   --muted:#7d8aa3; --muted2:#a9b6cc; --line:#1e2a40; --subtle:#111a2b;
-  --acc:#18c8ff; --acc2:#2b6bff; --glow:rgba(24,200,255,.6); --mark:#04131f; --amber:#38bdf8;`;
+  --acc:#18c8ff; --acc2:#2b6bff; --glow:rgba(24,200,255,.6); --mark:#04131f; --amber:#38bdf8; --rust:#e0975a;`;
 
 // Layout & type from huggingnews.com's computed styles (Source Sans 3, stone bg),
 // re-skinned to a neon-blue "Big Blue Marble" palette.
@@ -49,7 +49,7 @@ const CSS = `
 :root{
   --bg:#fafaf9; --panel:#fff; --ink:#0c1524; --fg:#1f2937;
   --muted:#71717a; --muted2:#52525b; --line:#e7e5e4; --subtle:#f4f6fb;
-  --acc:#12c2ff; --acc2:#2b6bff; --glow:rgba(20,180,255,.5); --mark:#04131f; --amber:#0a7fd4;
+  --acc:#12c2ff; --acc2:#2b6bff; --glow:rgba(20,180,255,.5); --mark:#04131f; --amber:#0a7fd4; --rust:#b45309;
 }
 :root[data-theme="dark"]{${DARK}}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){${DARK}} }
@@ -60,13 +60,13 @@ body{margin:0;background:var(--bg);color:var(--fg);font-size:16px;line-height:1.
 a{color:inherit;text-decoration:none}
 /* Every story surface explicitly uses the accurate font */
 .row h3,.rowmeta,h1.headline,.article,.src .st,.day h2{font-family:var(--font)}
-.wrap{max-width:820px;margin:0 auto;padding:0 18px 90px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 18px 90px}
 
 /* Full-width neon-blue header band covering brand + search + actions */
 .hdrband{position:sticky;top:0;z-index:9;width:100%;
   background:linear-gradient(100deg,var(--acc),var(--acc2));
   box-shadow:0 2px 18px var(--glow),0 0 0 1px rgba(255,255,255,.06) inset}
-.hdrinner{max-width:820px;margin:0 auto;padding:11px 18px;display:flex;align-items:center;gap:12px}
+.hdrinner{max-width:1000px;margin:0 auto;padding:11px 18px;display:flex;align-items:center;gap:12px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:#fff;letter-spacing:-.01em;text-shadow:0 1px 2px rgba(0,20,40,.25)}
 .mark{background:radial-gradient(circle at 30% 28%,#3b82f6,#04131f 78%);border:1px solid rgba(255,255,255,.55);box-shadow:0 0 10px rgba(0,30,60,.35);font-size:15px;width:28px;height:28px;border-radius:8px;display:grid;place-items:center}
 .search{flex:1;max-width:320px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);border-radius:9px;padding:6px 12px;color:rgba(255,255,255,.9);font-size:14px}
@@ -80,43 +80,47 @@ a{color:inherit;text-decoration:none}
 .nrow{display:flex;flex-wrap:wrap;gap:3px 16px;align-items:baseline;padding:6px 0}
 .f{font-size:14px;font-weight:400;color:var(--ink);white-space:nowrap}
 .f .n{font-size:12px;color:var(--muted);font-weight:400;margin-left:3px}
-.f.on,.f.on .n{color:var(--acc2);font-weight:600}
+.f.on,.f.on .n{color:var(--rust);font-weight:600}
 .more{font-size:13px;color:var(--muted);font-weight:400}
 .trend{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:9px 0 2px}
 .tlabel{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted2);display:flex;align-items:center;gap:5px}
 .pill{font-size:14px;font-weight:400;color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:4px 13px;display:inline-flex;gap:6px;align-items:center;background:var(--panel)}
 .pill .n{color:var(--muted)}
-.pill.on{border-color:var(--acc2);color:var(--acc2);background:color-mix(in srgb,var(--acc) 15%,transparent)}
+.pill.on{border-color:var(--rust);color:var(--rust);background:color-mix(in srgb,var(--rust) 13%,transparent)}
 .clearbar{padding:8px 0 0;font-size:14px;color:var(--muted2)}
-.clearbar a{color:var(--acc2);font-weight:600}
+.clearbar a{color:var(--rust);font-weight:600}
 
 /* TL;DR */
 .tldr{border-top:1px solid var(--ink);border-bottom:1px solid var(--line);padding:13px 2px;margin-top:10px}
 .tldr-h{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .tldr .tt{font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--ink)}
 .tldr .tsub{font-size:13px;color:var(--muted)}
-.tldr ol{margin:0;padding-left:24px}
-.tldr li{padding:5px 0;font-size:15px;line-height:1.4;color:var(--fg)}
+.tldr ol{margin:0;padding-left:22px;columns:2;column-gap:44px}
+.tldr li{padding:2px 0;font-size:15px;line-height:1.3;color:var(--fg);break-inside:avoid}
 .tldr li::marker{color:var(--muted);font-weight:600}
-.tldr li a:hover{color:var(--amber)}
+.tldr li a:hover{color:var(--rust)}
 
 /* Day header */
-.day{display:flex;align-items:baseline;gap:12px;margin:26px 0 4px;padding-bottom:8px;border-bottom:2px solid var(--ink)}
+.day{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:26px 0 4px;padding-bottom:8px;border-bottom:2px solid var(--ink)}
 .day h2{font-size:17px;font-weight:700;color:var(--ink);margin:0}
 .day .count{font-size:14px;color:var(--muted)}
+.day a{font-size:13px;font-weight:400;color:var(--muted2);white-space:nowrap}
+.day a .n{font-size:11px;color:var(--muted);margin-left:2px}
+.day a.on{color:var(--rust);font-weight:600}
+.day .more{font-size:12px;color:var(--muted);margin-left:auto}
 
 /* Story rows */
-.row{display:flex;gap:14px;align-items:flex-start;padding:13px 6px;border-bottom:1px solid var(--line)}
+.row{display:flex;gap:14px;align-items:flex-start;padding:8px 6px;border-bottom:1px solid var(--line)}
 .row:hover{background:var(--subtle)}
 .row .num{color:var(--muted);font-size:14px;font-weight:600;min-width:20px;text-align:right;padding-top:2px}
 .row .accent{width:3px;align-self:stretch;border-radius:2px;background:transparent}
-.row.lead .accent{background:linear-gradient(var(--acc),var(--acc2));box-shadow:0 0 8px var(--glow)}
+.row.lead .accent{background:var(--rust)}
 .row .body{flex:1;min-width:0}
 .row h3{font-size:16px;font-weight:600;color:var(--ink);margin:0;line-height:1.32}
-.row:hover h3{color:var(--amber)}
-.badge{font-size:11px;font-weight:800;color:var(--amber);letter-spacing:.04em;margin-right:7px;vertical-align:1px}
+.row:hover h3{color:var(--rust)}
+.badge{font-size:11px;font-weight:800;color:var(--rust);letter-spacing:.04em;margin-right:7px;vertical-align:1px}
 .arrow{color:var(--muted);margin-right:5px;font-weight:700}
-.rowmeta{display:flex;gap:14px;align-items:baseline;margin-top:5px;font-size:13px;color:var(--muted)}
+.rowmeta{display:flex;gap:14px;align-items:baseline;margin-top:2px;font-size:13px;color:var(--muted)}
 .rowmeta .topic{color:var(--muted2);font-weight:600}
 .right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right;white-space:nowrap;padding-top:2px}
 .right .time{font-size:13px;font-weight:700;color:var(--ink)}
@@ -126,16 +130,17 @@ a{color:inherit;text-decoration:none}
 .back{color:var(--muted);font-size:14px;font-weight:600;display:inline-block;margin:22px 0 6px}
 .detail-meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px;color:var(--muted);margin-top:8px}
 .chip{font-size:12px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--subtle);border:1px solid var(--line);color:var(--muted2)}
-.chip.topic{background:var(--acc);color:var(--mark);border-color:var(--acc)}
+.chip.topic{background:var(--rust);color:#fff;border-color:var(--rust)}
 h1.headline{font-size:26px;line-height:1.25;font-weight:700;color:var(--ink);margin:14px 0 0;letter-spacing:-.01em}
 .article{font-size:17px;line-height:1.7;color:var(--fg);white-space:pre-wrap;margin:20px 0}
 .src{border-top:2px solid var(--ink);padding-top:14px;margin-top:26px}
 .src h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 4px}
 .src a.item{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
-.src a.item:hover .st{color:var(--amber)}
+.src a.item:hover .st{color:var(--rust)}
 .src .st{font-size:15px;font-weight:600;color:var(--ink)}
 .src .ss{font-size:13px;color:var(--muted);white-space:nowrap}
 .empty{color:var(--muted);padding:48px 0;text-align:center}
+@media(max-width:640px){.tldr ol{columns:1}.day .more{margin-left:0}}
 `;
 
 const THEME_JS = `
@@ -210,7 +215,7 @@ function tldr(all: Story[]): string {
         b.sources.length - a.sources.length ||
         b.newsAt.localeCompare(a.newsAt),
     )
-    .slice(0, 5);
+    .slice(0, 7);
   if (top.length === 0) return "";
   return `<section class="tldr">
     <div class="tldr-h"><span class="tt">TL;DR</span><span class="tsub">past 24 hours</span></div>
@@ -230,6 +235,21 @@ function row(s: Story, n: number, lead: boolean): string {
     <span class="right"><span class="time">${ago(s.newsAt)}</span><span class="cnt">${s.sources.length} src</span></span>
   </a>`;
 }
+
+// Per-day topic breakdown shown inline in the date header (like HuggingNews).
+function dayTags(list: Story[], active?: string): string {
+  const counts = tally(list, (s) => s.tags);
+  const links = counts
+    .slice(0, 8)
+    .map(([t, n]) => `<a class="${active === t ? "on" : ""}" href="/?tag=${enc(t)}">${esc(cap(t))}<span class="n">${n}</span></a>`)
+    .join("");
+  const more = counts.length > 8 ? `<span class="more">+${counts.length - 8} more</span>` : "";
+  return links + more;
+}
+
+// A busy day can produce hundreds of raw items; the front page shows the top
+// slice per day (ranked below) so it reads like a curated front page, not a dump.
+const MAX_PER_DAY = 45;
 
 app.get("/", (req, res) => {
   const tag = req.query.tag ? String(req.query.tag) : undefined;
@@ -256,10 +276,23 @@ app.get("/", (req, res) => {
   // TL;DR only on the unfiltered front page, like the original.
   const intro = !tag && !entity ? tldr(all) : "";
 
+  // Show only the most recent few days (like the ref site's "N stories across 3
+  // days") so the front page stays light instead of rendering the whole archive.
+  const MAX_DAYS = 3;
   const body = [...byDay.entries()]
-    .map(([day, list]) => {
+    .slice(0, MAX_DAYS)
+    .map(([day, dayAll]) => {
+      // Rank the day by corroboration (distinct sources), then breadth, then recency,
+      // and cap it so a firehose day reads like a curated front page, not a dump.
+      const ranked = [...dayAll].sort(
+        (a, b) =>
+          b.sources.length - a.sources.length ||
+          b.entities.length - a.entities.length ||
+          b.newsAt.localeCompare(a.newsAt),
+      );
+      const list = ranked.slice(0, MAX_PER_DAY);
       const rows = list.map((s, i) => row(s, i + 1, i < 3)).join("");
-      return `<div class="day"><h2>${esc(dayLabel(day))}</h2><span class="count">${list.length} stories</span></div>${rows}`;
+      return `<div class="day"><h2>${esc(dayLabel(day))}</h2><span class="count">${list.length} stories</span>${dayTags(list, tag)}</div>${rows}`;
     })
     .join("");
 

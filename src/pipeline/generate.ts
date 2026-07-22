@@ -37,21 +37,59 @@ Sources:
 ${sources}`;
 }
 
+// Strip markdown/HTML/URLs down to plain prose so release notes and rich feeds
+// don't dump raw "<details>…[link](url)…" soup into the article body.
+function cleanText(raw: unknown): string {
+  return String(raw ?? "")
+    .replace(/<[^>]+>/g, " ") // html tags incl <details>
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1") // md links/images -> label
+    .replace(/https?:\/\/\S+/g, " ") // bare urls
+    .replace(/[*_`>#|]+/g, " ") // md emphasis / quote / heading / table pipes
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Trim to the first whole sentence(s) under `max` chars.
+function firstSentences(raw: unknown, max = 300): string {
+  const s = cleanText(raw);
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  const stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+  return stop > 80 ? cut.slice(0, stop + 1) : cut.replace(/\s+\S*$/, "") + "…";
+}
+
+// A readable headline without an LLM. GitHub release feeds are a firehose of
+// build tags ("ggml-org/llama.cpp b10082") — collapse those to plain English.
+function mockHeadline(cluster: Cluster): string {
+  const lead = cluster.items[0];
+  const n = cluster.items.length;
+  if (lead.source.startsWith("github:")) {
+    const repo = lead.source.split("/").pop() || lead.source.replace(/^github:/, "");
+    if (n > 1) return `${repo} ships ${n} new builds`;
+    const tag = lead.title.trim().split(/\s+/).pop() || lead.title;
+    return `${repo} releases ${tag}`;
+  }
+  return cleanText(lead.title).slice(0, 110);
+}
+
 // Deterministic offline fallback so the pipeline runs with no API key.
 function mockStory(cluster: Cluster, topic: Topic): Story {
   const lead = cluster.items[0];
+  const n = cluster.items.length;
+  const orgs = [...new Set(cluster.items.map((i) => sourceOrg(i.source)))];
+  const body = firstSentences(lead.text || lead.title);
   const article =
-    `${cluster.items.length > 1 ? `${cluster.items.length} sources report: ` : ""}` +
-    `${lead.text || lead.title}` +
-    (cluster.items.length > 1 ? `\n\nCorroborated by ${cluster.items.map((i) => i.source).join(", ")}.` : "");
+    (n > 1 ? `${n} sources report. ` : "") +
+    body +
+    (n > 1 ? `\n\nAlso covered by ${orgs.slice(0, 6).join(", ")}.` : "");
   const text = `${lead.title} ${lead.text}`.toLowerCase();
   return {
     id: storyId(cluster),
     topicId: topic.id,
-    headline: lead.title.slice(0, 110),
+    headline: mockHeadline(cluster),
     article,
     tags: topic.tags.filter((t) => text.includes(t.split("-")[0])).slice(0, 3),
-    entities: [...new Set(cluster.items.map((i) => sourceOrg(i.source)))].slice(0, 5),
+    entities: orgs.slice(0, 5),
     publishedAt: new Date().toISOString(),
     newsAt: newsAt(cluster),
     sources: cluster.items.map((i) => ({ source: i.source, author: i.author, url: i.url, title: i.title })),

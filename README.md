@@ -1,11 +1,15 @@
-# HuggingNews clone
+# The Big Blue Marble
 
-A from-scratch rebuild of the [HuggingNews](https://huggingnews.com/about) architecture:
-an AI-curated, day-grouped news feed. HuggingNews itself is closed-source — this
-reimplements the *system* they describe, not their code.
+An AI-curated, day-grouped AI-news feed. A from-scratch rebuild of the
+[HuggingNews](https://huggingnews.com/about) architecture (which is closed-source —
+this reimplements the *system* they describe, not their code), reskinned as
+**The Big Blue Marble**.
+
+- **Repo:** `github.com/Kandy22/big-blue-marble` · **Local folder:** `~/kingsfield/big-blue-marble`
+- **Serves at:** http://localhost:4400 (`npm run serve`)
 
 ```
-ingest (sources) ──▶ cluster (same event) ──▶ generate (1 story/cluster) ──▶ serve (feed)
+ingest (sources) ──▶ cluster (same event) ──▶ generate (1 story/cluster) ──▶ serve (curated feed)
 ```
 
 ## Run it
@@ -17,9 +21,16 @@ npm run pipeline          # ingest → cluster → generate → data/store.json
 npm run serve             # feed at http://localhost:4400
 ```
 
-With **no API key** the writer uses a deterministic mock so the whole pipeline
-still runs offline. Add `ANTHROPIC_API_KEY` to `.env` for real, objective story
-generation grounded in the sources.
+With **no API key** the writer uses a deterministic offline pass: it strips
+markdown/HTML out of source text, writes clean summaries, and collapses noisy
+release feeds (e.g. GitHub build tags → *"llama.cpp ships 7 new builds"*). The
+whole pipeline runs offline this way. Add `ANTHROPIC_API_KEY` to `.env` for
+LLM-written headlines/articles grounded in the sources.
+
+> **Note:** the environment's Claude Pro / Claude Code session cannot be used
+> headlessly for generation — a nested `claude` CLI call returns `401` because
+> the OAuth token isn't exposed to subprocesses. Real LLM writing needs an
+> `ANTHROPIC_API_KEY`; without one, the offline writer above is what runs.
 
 ## Adding topics — the one knob
 
@@ -64,7 +75,12 @@ tag taxonomy + the real, validated feed universe that matches it —
 
 **X is HuggingNews's primary source**, but the X API is paid — those entries
 no-op until you set `X_BEARER_TOKEN`. Every `rss`/`github`/`hfhub` source is
-keyless and works now (29 distinct sources currently feed the pipeline).
+keyless and works now.
+
+Beyond `ai`, the shipped config also includes a **`legal-ai`** topic and a
+**`courts`** topic. `courts` sources CourtWatch News (federal filings, indictments,
+dockets) and Damien Charlotin's *Artificial Authority* (AI-in-court sanctions and
+hallucinations) — both keyless RSS. See [`config/topics.json`](config/topics.json).
 
 ## Syndication — add the feed to another website
 
@@ -130,12 +146,31 @@ Add a new source type in [`src/sources/`](src/sources/) and one `case` in
 |-----------|------|--------------|
 | Ingest    | `src/sources/*` | Each adapter → normalized `RawItem[]`. One failing source never sinks the run. |
 | Cluster   | `src/similarity.ts` | Embedding-free TF-IDF + cosine. Groups items about the same event. Swap in real embeddings for semantic matching — clustering only needs `sim()`. |
-| Generate  | `src/pipeline/generate.ts` | One LLM call per cluster → headline/article/tags/entities. Mock fallback offline. |
-| Store     | `src/store.ts` | JSON file. Swap the 4 functions for Postgres/Supabase and nothing else changes. |
-| Serve     | `src/server.ts` | Day-grouped feed + story detail pages. Server-rendered, zero frontend build. |
+| Generate  | `src/pipeline/generate.ts` | One LLM call per cluster → headline/article/tags/entities. Offline fallback cleans markdown/HTML and collapses release-feed titles. |
+| Store     | `src/store.ts` | JSON file, upsert by story id. Swap the 4 functions for Postgres/Supabase and nothing else changes. |
+| Serve     | `src/server.ts` | Curated day-grouped feed + story detail pages. Server-rendered, zero frontend build. See *Front page* below. |
+
+## Front page: curation & ranking
+
+The feed presents like a curated front page rather than dumping every ingested
+item — all in [`src/server.ts`](src/server.ts):
+
+- **Recent window** — only the most recent `MAX_DAYS` (default **3**) day sections render, so the page stays light (~70 KB) even with thousands of stories in the store.
+- **Per-day cap** — each day shows its top `MAX_PER_DAY` (default **45**) stories.
+- **Ranking** — within a day, stories are ordered by corroboration: distinct **source count**, then breadth (**entities**), then recency. Multi-source stories float to the top; the top 3 get a rust accent bar.
+- **Per-day topic breakdown** in each date header (e.g. `Models 12 · Open-Source 8 · …`).
+- **TL;DR** — two-column digest of the biggest stories across the corpus.
+- **Theme** — light/stone body with a blue "Big Blue Marble" header band; every in-content accent (NEW badge, active filters, accent bars, topic chips) is **rust** — blue is confined to the header. A light/dark toggle persists in `localStorage`.
 
 ## Tuning
 
+- `MAX_DAYS` / `MAX_PER_DAY` in `src/server.ts` — how many recent day sections
+  render, and how many stories per day. Raise for a denser feed, lower for a
+  tighter test window. The store keeps **all** stories regardless, so you can
+  re-weight against the full corpus without re-ingesting.
+- The per-day ranking sort in `src/server.ts` (`ranked` in the `/` handler) —
+  change the weighting (source count → entities → recency) to reprioritize what
+  surfaces to the top of each day.
 - `MIN_SOURCES` in `src/pipeline/run.ts` — set to `2` to require multi-source
   corroboration before a cluster becomes a story (HuggingNews-style).
 - `threshold` in `clusterItems()` (`src/similarity.ts`) — higher = tighter clusters.
