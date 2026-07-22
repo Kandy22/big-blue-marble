@@ -16,6 +16,15 @@ embed widget, neon-blue reskin). Folder name is just the original clone name.
 - Uses the existing keyless `rss` adapter — no code changes, no API key.
 - Tags: `indictment`, `search-warrant`, `docket`, `ruling`, `filing`.
 
+### Extended (2026-07-22): Artificial Authority feed
+- Added a second keyless RSS source to the `courts` topic: Damien Charlotin's
+  "Artificial Authority" Substack (`https://artificialauthority.ai/feed`), which
+  feeds his AI-hallucination-in-court database.
+- Added tags: `ai-hallucination`, `ai-sanctions`, `ai-court-rules`,
+  `ai-discovery-privilege`.
+- Verified the feed returns HTTP 200 RSS 2.0 (20 items) and parses cleanly
+  through `fetchRss` with real titles.
+
 ### Verified working (2026-07-18)
 - Ran `npm run pipeline` → CourtWatch's 20 items ingested and turned into stories.
 - Confirmed in-browser: each Courts story renders with a blue "Courts" chip, a

@@ -84,9 +84,11 @@
       "label": "Courts",
       "sources": [
         { "$group": "Federal court filings, indictments, and docket reporting" },
-        { "type": "rss", "url": "https://rss.beehiiv.com/feeds/BTVqUNjsIO.xml" }
+        { "type": "rss", "url": "https://rss.beehiiv.com/feeds/BTVqUNjsIO.xml" },
+        { "$group": "AI hallucinations and sanctions in court (Damien Charlotin)" },
+        { "type": "rss", "url": "https://artificialauthority.ai/feed" }
       ],
-      "tags": ["indictment", "search-warrant", "docket", "ruling", "filing"]
+      "tags": ["indictment", "search-warrant", "docket", "ruling", "filing", "ai-hallucination", "ai-sanctions", "ai-court-rules", "ai-discovery-privilege"]
     }
   ]
 }
