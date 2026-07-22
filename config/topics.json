@@ -78,6 +78,15 @@
         { "type": "rss", "url": "https://abovethelaw.com/feed/" }
       ],
       "tags": ["legaltech", "regulation", "court-ruling", "funding", "access-to-justice"]
+    },
+    {
+      "id": "courts",
+      "label": "Courts",
+      "sources": [
+        { "$group": "Federal court filings, indictments, and docket reporting" },
+        { "type": "rss", "url": "https://rss.beehiiv.com/feeds/BTVqUNjsIO.xml" }
+      ],
+      "tags": ["indictment", "search-warrant", "docket", "ruling", "filing"]
     }
   ]
 }
