@@ -16,6 +16,12 @@ function decodeEntities(s: string): string {
 }
 
 function strip(html: unknown): string {
+  // fast-xml-parser turns attributed nodes (e.g. <title type="text">…</title>)
+  // into objects like { "#text": "…", "@_type": "text" }. Pull out the text so
+  // we don't stringify the whole object into "[object Object]".
+  if (html && typeof html === "object" && !Array.isArray(html)) {
+    html = (html as Record<string, unknown>)["#text"] ?? "";
+  }
   return decodeEntities(String(html ?? "").replace(/<[^>]+>/g, " "))
     .replace(/\s+/g, " ")
     .trim()
